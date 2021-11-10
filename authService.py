@@ -1,37 +1,43 @@
 import time
 
+CONST_DATABASE = "data.txt"
+CONST_REQUEST = "request.txt"
+CONST_RESPONSE = "response.txt"
+CONST_REQUEST_FREQUENCY = 3
+
+
 def main():
     while True:
-        time.sleep(3)
+        time.sleep(CONST_REQUEST_FREQUENCY)
         currentRequests = []
-        currentRead = []
-        trueFlag = False
+
         #store request in list and delete txt file
-        with open("request.txt", "r") as filestream:
+        with open(CONST_REQUEST, "r") as filestream:
             line = filestream.readline()
             currentRequests = line.split(", ")
-        #with open("request.txt", "w") as filestream:
-            #filestream.truncate(0)
+        clearRequest()
+
         if(currentRequests != []):
             if(currentRequests[0] == "read"):
-                with open("data.txt", "r") as filestream:
-                    for line in filestream:
-                        currentline = line.split(", ")
-                        currentRead.append(currentline)
-                for data in currentRead:
-                    if(currentRequests[2] != data[2]):
-                        print("yes it does")
-                        print(currentRequests[2]) 
-                        print(data[2])
-                    if(currentRequests[1] == data[1] and currentRequests[2] == data[2]):
-                        print(True)
-                        writeTrue()
-                        trueFlag = True
-                    if(trueFlag == False):
-                        writeFalse()
+                if(checkDatabaseForMatch(currentRequests[1], currentRequests[2], currentRequests[3]) == True):
+                    writeTrue()
+                else:
+                    writeFalse()
             if(currentRequests[0] == "write"):
-                writeNewData(currentRequests[1], currentRequests[2])
+                writeNewData(currentRequests[1], currentRequests[2], currentRequests[3])
                 writeTrue()
+
+def checkDatabaseForMatch(username, service, task):
+    currentRead = []
+    with open(CONST_DATABASE, "r") as filestream:
+        for line in filestream:
+            currentline = line.split(", ")
+            currentRead.append(currentline)
+    for data in currentRead:
+        if(username == data[0] and service == data[1], task == data[2]):
+            return True
+    return False
+
 
 def writeTrue():
     with open("response.txt", "w") as filestream:
@@ -45,15 +51,14 @@ def writeFalse():
         filestream.write("false")
     return
 
-def writeNewData(userName, serviceName):
+def writeNewData(userName, serviceName, taskName):
     with open("data.txt", "a") as filestream:
-        filestream.write(userName + ", " + serviceName + "\n")
+        filestream.write(userName + ", " + serviceName + ", " + taskName + "\n")
     return
+
+def clearRequest():
+    with open("request.txt", "w") as filestream:
+        filestream.truncate(0)
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
